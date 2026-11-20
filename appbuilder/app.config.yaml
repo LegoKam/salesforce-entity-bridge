@@ -1,0 +1,52 @@
+application:
+  actions: actions
+  runtimeManifest:
+    packages:
+      salesforce-entity-bridge:
+        license: Apache-2.0
+        actions:
+          entities:
+            function: actions/entities/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+              SF_INSTANCE_URL: $SF_INSTANCE_URL
+              SF_CLIENT_ID: $SF_CLIENT_ID
+              SF_CLIENT_SECRET: $SF_CLIENT_SECRET
+              SF_TOKEN_URL: $SF_TOKEN_URL
+              SF_REFRESH_TOKEN: $SF_REFRESH_TOKEN
+              SF_SCOPE: $SF_SCOPE
+            annotations:
+              require-adobe-auth: false
+              final: true
+          describe:
+            function: actions/describe/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+              SF_INSTANCE_URL: $SF_INSTANCE_URL
+              SF_CLIENT_ID: $SF_CLIENT_ID
+              SF_CLIENT_SECRET: $SF_CLIENT_SECRET
+              SF_TOKEN_URL: $SF_TOKEN_URL
+              SF_REFRESH_TOKEN: $SF_REFRESH_TOKEN
+              SF_SCOPE: $SF_SCOPE
+            annotations:
+              require-adobe-auth: false
+              final: true
+          submit:
+            function: actions/submit/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+              SF_INSTANCE_URL: $SF_INSTANCE_URL
+              SF_CLIENT_ID: $SF_CLIENT_ID
+              SF_CLIENT_SECRET: $SF_CLIENT_SECRET
+              SF_TOKEN_URL: $SF_TOKEN_URL
+              SF_REFRESH_TOKEN: $SF_REFRESH_TOKEN
+              SF_SCOPE: $SF_SCOPE
+            annotations:
+              require-adobe-auth: false
+              final: true

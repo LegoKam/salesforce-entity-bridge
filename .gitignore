@@ -8,6 +8,10 @@ helix-importer-ui
 *.bak
 .idea
 
+appbuilder/.env
+appbuilder/node_modules/
+appbuilder/dist/
+
 # Ensure these files are tracked
 !CLAUDE.md
 !AGENTS.md

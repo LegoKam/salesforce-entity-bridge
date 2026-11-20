@@ -1,0 +1,308 @@
+:root {
+  --text: #222;
+  --text-subtle: #6b6b6b;
+  --border: #d5d5d5;
+  --surface: #f6f6f6;
+  --accent: #00a1e0;
+  --accent-hover: #0176d3;
+  --error: #c9252d;
+  --success: #05834e;
+  --radius: 8px;
+
+  font-family: 'Adobe Clean', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px;
+}
+
+header,
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+h2,
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-subtle);
+}
+
+section,
+form,
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+form {
+  gap: 14px;
+}
+
+p {
+  margin: 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-subtle);
+  overflow-wrap: anywhere;
+}
+
+button,
+.button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+textarea {
+  display: block;
+  min-height: 72px;
+  resize: vertical;
+}
+
+button,
+.button {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+button:hover,
+.button:hover {
+  background: var(--surface);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+
+button.quiet {
+  padding: 2px 6px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 12px;
+  color: var(--accent);
+}
+
+:is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.actions,
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.chip.is-active {
+  border-color: var(--accent);
+  background: #e6f5fc;
+  color: var(--accent-hover);
+}
+
+.notice,
+.status {
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+
+.status[data-type='error'] {
+  background: #fdeceb;
+  color: var(--error);
+}
+
+.status[data-type='success'] {
+  background: #e8f6ef;
+  color: var(--success);
+}
+
+.entity-list,
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.entity-list:empty,
+.field-list:empty {
+  display: none;
+}
+
+.entity-list li,
+.field-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.entity-list li:last-child,
+.field-list li:last-child {
+  border-bottom: none;
+}
+
+.entity-list button {
+  width: 100%;
+  justify-content: flex-start;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-weight: 400;
+  text-align: left;
+}
+
+.entity-list button:hover {
+  background: var(--surface);
+}
+
+.entity-list button.is-active {
+  background: #e6f5fc;
+  font-weight: 700;
+  color: var(--accent-hover);
+}
+
+.entity-meta,
+.field-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.entity-name,
+.field-name {
+  font-weight: 700;
+}
+
+.entity-api,
+.field-api,
+.field-type {
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+
+.field-list label {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.field-list input[type='checkbox'] {
+  width: auto;
+  margin-top: 2px;
+  flex: none;
+}
+
+.field-type-select {
+  width: auto;
+  min-width: 110px;
+  flex: none;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.search-row {
+  display: flex;
+  gap: 6px;
+}
+
+.result-preview {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-wrap: anywhere;
+}
+
+.secret-mask {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+}

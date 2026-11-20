@@ -1,0 +1,88 @@
+.sf-form {
+  max-width: 40rem;
+}
+
+.sf-form .sf-form-el {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sf-form .sf-form-title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.sf-form .sf-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sf-form .sf-form-field-checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sf-form label {
+  font-weight: 600;
+}
+
+.sf-form input:not([type='checkbox'], [type='hidden']),
+.sf-form select,
+.sf-form textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #c6c6c6;
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.sf-form .sf-form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sf-form button[type='submit'] {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: #0176d3;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sf-form button[type='submit']:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.sf-form button[type='submit']:hover:not(:disabled) {
+  background: #014486;
+}
+
+.sf-form .sf-form-status {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  background: #f3f3f3;
+}
+
+.sf-form .sf-form-status[data-type='error'] {
+  background: #fdeceb;
+  color: #8a1a1f;
+}
+
+.sf-form .sf-form-status[data-type='success'] {
+  background: #e8f6ef;
+  color: #0b6b3a;
+}
+
+.sf-form .sf-form-error {
+  color: #8a1a1f;
+}
