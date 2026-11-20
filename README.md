@@ -53,19 +53,11 @@ On the Edge Delivery preview / live site, visitors see the presentable form (two
 
 ![Published Lead form on aem.page](docs/screenshots/06-preview-lead-form.png)
 
-Full page (2× capture):
-
-![Full-page published form](docs/screenshots/06b-preview-fullpage-2x.png)
-
 ### 7. Submit → Salesforce
 
-Submit posts JSON to App Builder `/submit`. On success the form shows the created record id.
+Submit posts JSON to App Builder `/submit`. On success the form shows the created record id, and the Lead appears in Salesforce (e.g. Today’s Leads).
 
-![Form success — Created Lead id](docs/screenshots/07-submit-success.png)
-
-The Lead appears in Salesforce (e.g. Today’s Leads).
-
-![Salesforce Today’s Leads with the new record](docs/screenshots/08-salesforce-lead-created.png)
+![Salesforce Today’s Leads with the new record](docs/screenshots/07-salesforce-lead-created.png)
 
 ---
 
