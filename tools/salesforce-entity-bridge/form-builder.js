@@ -101,15 +101,24 @@ export function buildFormDefinition({
 }
 
 /**
- * Build EDS `sf-form` block markup for Document Authoring / sendHTML.
- * The block contains one cell of JSON; decorate() parses it into a form.
+ * Build an Edge Delivery `sf-form` authoring table for Document Authoring /
+ * `sendHTML`. DA recognises blocks as tables whose first row is the block
+ * name; later that becomes `<div class="sf-form">` on the page. The body cell
+ * holds JSON that `blocks/sf-form` parses into a form.
  *
  * @param {{ entity: string, title?: string, submitUrl: string, fields: object[] }} opts
  */
 export function buildFormBlockHtml(opts) {
   const definition = buildFormDefinition(opts);
   const json = JSON.stringify(definition, null, 2);
-  return `<div class="sf-form"><div><div><pre><code>${escapeHtml(json)}</code></pre></div></div></div>`;
+  return [
+    '<table>',
+    '<tbody>',
+    '<tr><th>sf-form</th></tr>',
+    `<tr><td><pre><code>${escapeHtml(json)}</code></pre></td></tr>`,
+    '</tbody>',
+    '</table>',
+  ].join('');
 }
 
 /**

@@ -350,10 +350,10 @@ function setStatus(node, message = '', type = 'info') {
     resultPreview.textContent = `${formSummary({
       entity: state.selectedEntity.name,
       fields,
-    })} — inserts an sf-form block with JSON the page renders as a form.`;
+    })} — inserts an Edge Delivery \`sf-form\` block (JSON → rendered form).`;
     renderResultActions();
     resultSection.hidden = false;
-    setStatus(status, 'Form JSON ready. Insert it onto the page.', 'success');
+    setStatus(status, 'sf-form block ready. Insert it onto the page.', 'success');
   }
 
   async function refreshSelection() {
