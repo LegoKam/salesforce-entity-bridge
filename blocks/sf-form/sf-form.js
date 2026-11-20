@@ -157,11 +157,18 @@ export default function decorate(block) {
     }
     if (!form.reportValidity()) return;
 
-    const payload = { entity: meta.entity, fields: {} };
+    // Compatible with securgov salesforce-submit: flat API fields plus
+    // optional { entity, fields } wrapper used by this plugin.
+    const values = {};
     form.querySelectorAll('[name]').forEach((control) => {
       if (control.name === '_entity') return;
-      payload.fields[control.name] = readValue(control);
+      values[control.name] = readValue(control);
     });
+    const payload = {
+      entity: meta.entity,
+      fields: values,
+      ...values,
+    };
 
     submit.disabled = true;
     status.hidden = false;
@@ -181,7 +188,7 @@ export default function decorate(block) {
       } catch {
         data = { message: text };
       }
-      if (!resp.ok) {
+      if (!resp.ok || data?.status === 'failure') {
         throw new Error(data?.error || data?.message || `Submit failed (${resp.status})`);
       }
       status.dataset.type = 'success';

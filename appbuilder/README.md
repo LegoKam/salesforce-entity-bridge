@@ -6,7 +6,15 @@ Adobe I/O Runtime web actions that:
 | ------ | ------- |
 | `entities` | List createable Salesforce sObjects (authoring plugin) |
 | `describe` | Describe fields for one entity (authoring plugin) |
-| `submit` | Create a Salesforce record from a published `sf-form` |
+| `submit` | Create a Salesforce record (EDS `sf-form` or AEM Forms REST submit) |
+| `oauth-callback` | Exchange authorization `code` for a refresh token |
+
+Submission behaviour mirrors [securgov/demo-open-auth](https://github.com/) `salesforce-submit`:
+
+- Accepts flat field maps, `{ entity, fields }`, AEM Forms `data` JSON, and multipart `data`
+- Allowlists `salesforce_car_licence_details__c` fields (Name__c, Email_Address__c, …)
+- Validates required name + email for that object
+- Returns `{ status: "success"|"failure", id, message, errors }`
 
 ## Setup
 

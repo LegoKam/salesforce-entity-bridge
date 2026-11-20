@@ -1,6 +1,6 @@
 /*
  * Shared Salesforce OAuth + REST helpers for App Builder web actions.
- * Credentials come from Runtime inputs mapped from .env (SALESFORCE_*).
+ * Patterns drawn from securgov/demo-open-auth salesforce-* actions.
  */
 
 const fetch = require('node-fetch');
@@ -15,99 +15,96 @@ function stripQuotes(value) {
 
 function credentials(params) {
   const instanceUrl = String(
-    first(params.SALESFORCE_INSTANCE_URL, params.SF_INSTANCE_URL, params.instanceUrl),
+    first(params.SALESFORCE_INSTANCE_URL, params.instanceUrl),
   ).replace(/\/+$/, '');
   const normalised = instanceUrl
     ? (/^https?:\/\//i.test(instanceUrl) ? instanceUrl : `https://${instanceUrl}`)
     : '';
-  let apiVersion = first(params.SALESFORCE_API_VERSION, params.SF_API_VERSION, 'v59.0');
+  let apiVersion = first(params.SALESFORCE_API_VERSION, 'v59.0');
   apiVersion = String(apiVersion).replace(/^\/+|\/+$/g, '');
   if (apiVersion && !apiVersion.startsWith('v')) apiVersion = `v${apiVersion}`;
 
+  const objectName = String(
+    first(params.SALESFORCE_OBJECT_NAME, params.objectName, params.entity),
+  ).replace(/[^a-zA-Z0-9_]/g, '');
+
   return {
     instanceUrl: normalised,
-    clientId: first(params.SALESFORCE_CONSUMER_KEY, params.SF_CLIENT_ID, params.clientId),
-    clientSecret: first(
-      params.SALESFORCE_CONSUMER_SECRET,
-      params.SF_CLIENT_SECRET,
-      params.clientSecret,
-    ),
-    tokenUrl: first(params.SALESFORCE_TOKEN_URL, params.SF_TOKEN_URL, params.tokenUrl),
-    refreshToken: first(
-      params.SALESFORCE_REFRESH_TOKEN,
-      params.SF_REFRESH_TOKEN,
-      params.refreshToken,
-    ),
-    scope: stripQuotes(first(
-      params.SALESFORCE_OAUTH_SCOPE,
-      params.SF_SCOPE,
-      params.scope,
-    )),
-    authorizeUrl: first(
-      params.SALESFORCE_AUTHORIZATION_URL,
-      params.SF_OAUTH_AUTHORIZE_URL,
-      params.oauthAuthorizeUrl,
-    ),
+    clientId: first(params.SALESFORCE_CONSUMER_KEY, params.clientId),
+    clientSecret: first(params.SALESFORCE_CONSUMER_SECRET, params.clientSecret),
+    tokenUrl: first(params.SALESFORCE_TOKEN_URL, params.tokenUrl),
+    refreshToken: first(params.SALESFORCE_REFRESH_TOKEN, params.refreshToken),
+    scope: stripQuotes(first(params.SALESFORCE_OAUTH_SCOPE, params.scope)),
+    authorizeUrl: first(params.SALESFORCE_AUTHORIZATION_URL, params.oauthAuthorizeUrl),
     callbackUrl: first(params.SALESFORCE_CALLBACK_URL, params.callbackUrl),
     oauthState: first(params.SALESFORCE_OAUTH_STATE, params.oauthState),
     apiVersion,
-    defaultObject: first(params.SALESFORCE_OBJECT_NAME, params.objectName),
+    objectName,
   };
 }
 
-function missingCreds(creds) {
-  const needed = ['instanceUrl', 'clientId', 'clientSecret', 'tokenUrl', 'refreshToken'];
-  return needed.filter((k) => !creds[k] || creds[k] === 'XX');
+function missingConfig(params) {
+  const required = [
+    'SALESFORCE_CONSUMER_KEY',
+    'SALESFORCE_CONSUMER_SECRET',
+    'SALESFORCE_REFRESH_TOKEN',
+    'SALESFORCE_TOKEN_URL',
+    'SALESFORCE_INSTANCE_URL',
+  ];
+  return required.filter((key) => {
+    const value = String(params[key] || '').trim();
+    return !value || value === 'XX';
+  });
 }
 
 async function getAccessToken(params) {
-  const creds = credentials(params);
-  const missing = missingCreds(creds);
+  const missing = missingConfig(params);
   if (missing.length) {
-    const error = new Error(`Missing Salesforce credentials: ${missing.join(', ')}`);
-    error.statusCode = 400;
+    const error = new Error('Salesforce integration is not configured');
+    error.status = 500;
+    error.missing = missing;
     throw error;
   }
 
   const body = new URLSearchParams({
     grant_type: 'refresh_token',
-    client_id: creds.clientId,
-    client_secret: creds.clientSecret,
-    refresh_token: creds.refreshToken,
+    client_id: params.SALESFORCE_CONSUMER_KEY,
+    client_secret: params.SALESFORCE_CONSUMER_SECRET,
+    refresh_token: params.SALESFORCE_REFRESH_TOKEN,
   });
 
-  const resp = await fetch(creds.tokenUrl, {
+  const resp = await fetch(params.SALESFORCE_TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
+    body: body.toString(),
   });
   const data = await resp.json().catch(() => ({}));
   if (!resp.ok || !data.access_token) {
-    const error = new Error(
-      data.error_description || data.error || `Salesforce token exchange failed (${resp.status})`,
-    );
-    error.statusCode = 502;
+    const error = new Error('Salesforce OAuth token exchange failed');
+    error.status = resp.status;
+    error.details = data;
     throw error;
   }
   return {
     accessToken: data.access_token,
-    instanceUrl: (data.instance_url || creds.instanceUrl).replace(/\/+$/, ''),
-    apiVersion: creds.apiVersion,
-    defaultObject: creds.defaultObject,
+    instanceUrl: String(data.instance_url || params.SALESFORCE_INSTANCE_URL).replace(/\/+$/, ''),
   };
 }
 
-function apiPath(params, relativePath) {
+function dataBaseUrl(params, instanceUrl) {
   const { apiVersion } = credentials(params);
-  const path = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
-  if (path.startsWith('/services/')) return path;
-  return `/services/data/${apiVersion}${path}`;
+  return `${instanceUrl}/services/data/${apiVersion}`;
 }
 
 async function sfFetch(params, path, { method = 'GET', body } = {}) {
   const { accessToken, instanceUrl } = await getAccessToken(params);
-  const url = `${instanceUrl}${apiPath(params, path)}`;
-  const resp = await fetch(url, {
+  const finalUrl = path.startsWith('http')
+    ? path
+    : (path.startsWith('/services/')
+      ? `${instanceUrl}${path}`
+      : `${dataBaseUrl(params, instanceUrl)}${path.startsWith('/') ? path : `/${path}`}`);
+
+  const resp = await fetch(finalUrl, {
     method,
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -128,45 +125,28 @@ async function sfFetch(params, path, { method = 'GET', body } = {}) {
       ? data.map((e) => e.message || e.errorCode).join('; ')
       : (data?.message || data?.error || text);
     const error = new Error(sfMessage || `Salesforce API ${resp.status}`);
-    error.statusCode = resp.status;
+    error.status = resp.status;
+    error.details = data;
     throw error;
   }
   return data;
 }
 
-function corsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
-function jsonResponse(statusCode, body) {
-  return {
-    statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-      ...corsHeaders(),
-    },
-    body,
-  };
-}
-
-function handleOptions() {
-  return {
-    statusCode: 204,
-    headers: corsHeaders(),
-    body: {},
-  };
+async function createRecord(params, objectName, payload) {
+  const safeObject = String(objectName || '').replace(/[^a-zA-Z0-9_]/g, '');
+  if (!safeObject) {
+    const error = new Error('Missing Salesforce object name');
+    error.status = 400;
+    throw error;
+  }
+  return sfFetch(params, `/sobjects/${safeObject}`, { method: 'POST', body: payload });
 }
 
 module.exports = {
   credentials,
+  missingConfig,
   getAccessToken,
-  apiPath,
+  dataBaseUrl,
   sfFetch,
-  jsonResponse,
-  handleOptions,
-  corsHeaders,
+  createRecord,
 };

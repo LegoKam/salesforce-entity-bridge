@@ -65,3 +65,17 @@ application:
             annotations:
               require-adobe-auth: false
               final: true
+          oauth-callback:
+            function: actions/oauth-callback/index.js
+            web: 'yes'
+            runtime: nodejs:18
+            inputs:
+              LOG_LEVEL: debug
+              SALESFORCE_CONSUMER_KEY: $SALESFORCE_CONSUMER_KEY
+              SALESFORCE_CONSUMER_SECRET: $SALESFORCE_CONSUMER_SECRET
+              SALESFORCE_TOKEN_URL: $SALESFORCE_TOKEN_URL
+              SALESFORCE_CALLBACK_URL: $SALESFORCE_CALLBACK_URL
+              SALESFORCE_OAUTH_STATE: $SALESFORCE_OAUTH_STATE
+            annotations:
+              require-adobe-auth: false
+              final: true

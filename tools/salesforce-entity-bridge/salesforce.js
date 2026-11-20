@@ -32,7 +32,7 @@ async function callAction(settings, name, body = {}, { signal } = {}) {
   } catch {
     payload = { error: text };
   }
-  if (!resp.ok) {
+  if (!resp.ok || payload?.status === 'failure') {
     const message = payload?.error
       || payload?.message
       || `App Builder ${name} failed (${resp.status}).`;

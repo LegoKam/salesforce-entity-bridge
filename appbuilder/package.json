@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "App Builder web actions that proxy Salesforce for the Entity Bridge plugin and sf-form submissions",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
   "dependencies": {
     "@adobe/aio-sdk": "^5.0.0",
     "node-fetch": "^2.7.0"

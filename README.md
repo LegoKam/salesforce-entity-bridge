@@ -25,9 +25,14 @@ Replace `LegoKam` / `salesforce-entity-bridge` with your org and site names if t
 Authoring (da.live canvas)
   Plugin → App Builder /entities + /describe → Salesforce
 
-Published site
-  sf-form block → App Builder /submit → Salesforce (create sObject)
+Published site / AEM Forms
+  sf-form or Forms REST submit → App Builder /submit → Salesforce (create sObject)
+
+Bootstrap refresh token
+  Browser → Salesforce authorize → App Builder /oauth-callback → copy refresh token to .env
 ```
+
+`submit` follows the securgov `demo-open-auth` patterns: AEM Forms `data` / multipart extraction, car-licence field allowlist, name+email validation, and `{ status, id, message }` responses.
 
 ## Install
 

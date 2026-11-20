@@ -1,6 +1,11 @@
 const { Core } = require('@adobe/aio-sdk');
-const { sfFetch, jsonResponse, handleOptions, credentials } = require('../shared/salesforce');
-const { errorResponse } = require('../shared/utils');
+const { sfFetch, credentials, missingConfig } = require('../shared/salesforce');
+const {
+  isOptions,
+  jsonResponse,
+  optionsResponse,
+  methodOf,
+} = require('../shared/utils');
 
 /**
  * List createable Salesforce sObjects for the authoring plugin.
@@ -8,12 +13,22 @@ const { errorResponse } = require('../shared/utils');
 async function main(params) {
   const logger = Core.Logger('entities', { level: params.LOG_LEVEL || 'info' });
 
-  if (params.__ow_method && String(params.__ow_method).toLowerCase() === 'options') {
-    return handleOptions();
+  if (isOptions(params)) return optionsResponse();
+  if (methodOf(params) !== 'POST' && methodOf(params) !== 'GET') {
+    return jsonResponse(405, { status: 'failure', message: 'Method not allowed' }, { Allow: 'GET, POST, OPTIONS' });
+  }
+
+  const missing = missingConfig(params);
+  if (missing.length) {
+    logger.error(`Missing Salesforce configuration: ${missing.join(', ')}`);
+    return jsonResponse(500, {
+      status: 'failure',
+      message: 'Salesforce integration is not configured',
+    });
   }
 
   try {
-    const { defaultObject } = credentials(params);
+    const { objectName: defaultObject } = credentials(params);
     const data = await sfFetch(params, '/sobjects');
     let entities = (data.sobjects || [])
       .filter((s) => s.createable && s.queryable && !s.deprecatedAndHidden)
@@ -24,7 +39,6 @@ async function main(params) {
         custom: s.custom,
       }));
 
-    // Prefer configured default object at the top of the list when present.
     if (defaultObject) {
       const preferred = entities.find((e) => e.name === defaultObject);
       if (preferred) {
@@ -33,9 +47,18 @@ async function main(params) {
     }
 
     logger.info(`Returning ${entities.length} entities`);
-    return jsonResponse(200, { entities, defaultObject: defaultObject || null });
+    return jsonResponse(200, {
+      status: 'success',
+      entities,
+      defaultObject: defaultObject || null,
+    });
   } catch (error) {
-    return errorResponse(error.statusCode || 500, error.message, logger);
+    logger.error(`${error.message} (${error.status || 500})`);
+    return jsonResponse(error.status || 502, {
+      status: 'failure',
+      message: error.message,
+      errors: error.details,
+    });
   }
 }
 

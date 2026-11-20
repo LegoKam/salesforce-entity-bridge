@@ -11,6 +11,10 @@ helix-importer-ui
 appbuilder/.env
 appbuilder/node_modules/
 appbuilder/dist/
+appbuilder/.aio
+appbuilder/*-Production.json
+appbuilder/*-Stage.json
+appbuilder/*-Dev.json
 
 # Ensure these files are tracked
 !CLAUDE.md
