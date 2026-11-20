@@ -33,7 +33,7 @@ Open **Settings**. Salesforce Connected App values and the App Builder base URL 
 
 **Load entities**, filter (e.g. `lead`), select **Lead**, tick fields, and set a form title. Use **↑↓** to order fields; **Show selected** filters to checked fields so reordering is easier. Then **Build form**.
 
-![Lead selected with fields, Show selected, and ↑↓ order controls](docs/screenshots/03-build-form-ready.png)
+![Lead selected — Fields step with Show selected and ↑↓ order](docs/screenshots/03-build-form-ready.png)
 
 ### 4. Insert an Edge Delivery `sf-form` block
 
