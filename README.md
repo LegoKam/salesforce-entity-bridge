@@ -31,15 +31,15 @@ Open **Settings**. Salesforce Connected App values and the App Builder base URL 
 
 ### 3. Choose an entity and fields
 
-**Load entities**, filter (e.g. `lead`), select **Lead**, tick fields, set a form title, then **Build form**.
+**Load entities**, filter (e.g. `lead`), select **Lead**, tick fields, and set a form title. Use **↑↓** to order fields; **Show selected** filters to checked fields so reordering is easier. Then **Build form**.
 
-![Lead selected with fields ready to insert](docs/screenshots/03-build-form-ready.png)
+![Lead selected with fields, Show selected, and ↑↓ order controls](docs/screenshots/03-build-form-ready.png)
 
 ### 4. Insert an Edge Delivery `sf-form` block
 
 **Insert at cursor** writes a DA authoring table whose first row is the block name `sf-form`. The body cell holds JSON (`entity`, `title`, `submit`, `fields`). In **Content** view:
 
-![Canvas Content view — sf-form block with JSON definition](docs/screenshots/04-insert-sf-form-block.png)
+![Canvas Content view — sf-form JSON block beside the plugin](docs/screenshots/04-insert-sf-form-block.png)
 
 ### 5. Authoring preview
 
@@ -55,9 +55,13 @@ On the Edge Delivery preview / live site, visitors see the presentable form (two
 
 ### 7. Submit → Salesforce
 
-Submit posts JSON to App Builder `/submit`. On success the form shows the created record id, and the Lead appears in Salesforce (e.g. Today’s Leads).
+Submit posts JSON to App Builder `/submit`. On success the form shows the created record id.
 
-![Salesforce Today’s Leads with the new record](docs/screenshots/07-salesforce-lead-created.png)
+![Form success — Created Lead id](docs/screenshots/07-submit-success.png)
+
+The Lead appears in Salesforce (e.g. Today’s Leads).
+
+![Salesforce Today’s Leads with the new record](docs/screenshots/08-salesforce-lead-created.png)
 
 ---
 
@@ -65,7 +69,7 @@ Submit posts JSON to App Builder `/submit`. On success the form shows the create
 
 - **Settings** — Salesforce Connected App + App Builder URL in da.live `secrets`
 - **Load entities / describe** — createable sObjects and fields via App Builder
-- **Field picker** — choose fields and HTML types (`text`, `email`, `select`, …)
+- **Field picker** — choose fields, HTML types, **Show selected**, and ↑↓ order
 - **Insert `sf-form`** — Edge Delivery authoring table + JSON definition
 - **Runtime submit** — creates Salesforce records without exposing secrets on the page
 
