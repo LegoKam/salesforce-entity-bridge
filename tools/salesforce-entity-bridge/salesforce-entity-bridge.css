@@ -193,7 +193,7 @@ button.quiet {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 220px;
+  max-height: 280px;
   margin: 0;
   padding: 0;
   overflow: auto;
@@ -277,10 +277,29 @@ button.quiet {
 
 .field-type-select {
   width: auto;
-  min-width: 110px;
+  min-width: 96px;
   flex: none;
   padding: 4px 6px;
   font-size: 12px;
+}
+
+.field-controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+
+.field-move {
+  min-width: 1.75rem;
+  padding: 2px 4px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.field-move:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .toolbar {

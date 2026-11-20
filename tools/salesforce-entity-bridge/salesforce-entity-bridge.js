@@ -131,8 +131,20 @@ function setStatus(node, message = '', type = 'info') {
       || e.name.toLowerCase().includes(q));
   }
 
+  function moveField(name, delta) {
+    const index = state.fields.findIndex((f) => f.name === name);
+    if (index < 0) return;
+    const next = index + delta;
+    if (next < 0 || next >= state.fields.length) return;
+    const copy = [...state.fields];
+    const [item] = copy.splice(index, 1);
+    copy.splice(next, 0, item);
+    state.fields = copy;
+    renderFields();
+  }
+
   function renderFields() {
-    fieldList.replaceChildren(...state.fields.map((f) => {
+    fieldList.replaceChildren(...state.fields.map((f, index) => {
       const selected = state.selected.get(f.name);
       const typeSelect = el(
         'select',
@@ -152,6 +164,22 @@ function setStatus(node, message = '', type = 'info') {
           t,
         )),
       );
+      const moveUp = el('button', {
+        type: 'button',
+        class: 'quiet field-move',
+        title: 'Move up',
+        'aria-label': `Move ${f.label} up`,
+        disabled: index === 0,
+        onclick: () => moveField(f.name, -1),
+      }, '↑');
+      const moveDown = el('button', {
+        type: 'button',
+        class: 'quiet field-move',
+        title: 'Move down',
+        'aria-label': `Move ${f.label} down`,
+        disabled: index === state.fields.length - 1,
+        onclick: () => moveField(f.name, 1),
+      }, '↓');
       return el(
         'li',
         {},
@@ -186,7 +214,7 @@ function setStatus(node, message = '', type = 'info') {
             ),
           ),
         ),
-        typeSelect,
+        el('div', { class: 'field-controls' }, typeSelect, moveUp, moveDown),
       );
     }));
     renderConfigured();
@@ -290,7 +318,10 @@ function setStatus(node, message = '', type = 'info') {
   }
 
   function selectedFieldsList() {
-    return [...state.selected.values()];
+    // Preserve the author-arranged field order from the list (↑↓).
+    return state.fields
+      .map((f) => state.selected.get(f.name))
+      .filter(Boolean);
   }
 
   function applyResult(mode) {
@@ -431,7 +462,7 @@ function setStatus(node, message = '', type = 'info') {
           clearFieldsBtn,
         ),
       ),
-      el('p', { class: 'hint' }, 'Tick fields to include. Change the HTML control type if needed.'),
+      el('p', { class: 'hint' }, 'Tick fields to include. Change the HTML type if needed. Use ↑↓ to set form order.'),
       fieldList,
       field('Form title', titleInput),
     ),
