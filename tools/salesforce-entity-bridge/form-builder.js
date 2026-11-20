@@ -1,6 +1,6 @@
 /*
  * Map Salesforce describe fields to HTML form controls and build an
- * `sf-form` block that can be inserted into the document.
+ * `sf-form` block that embeds a JSON definition for the page block to render.
  */
 
 /** Salesforce soapType / type → HTML input type (or select/textarea/checkbox). */
@@ -73,49 +73,43 @@ function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/>/g, '&gt;');
 }
 
-function cell(text) {
-  return `<div>${escapeHtml(text)}</div>`;
-}
-
-function row(...cells) {
-  return `<div>${cells.map(cell).join('')}</div>`;
+/**
+ * Compact JSON definition consumed by `blocks/sf-form`.
+ * @param {{ entity: string, title?: string, submitUrl: string, fields: object[] }} opts
+ */
+export function buildFormDefinition({
+  entity, title, submitUrl, fields,
+}) {
+  return {
+    entity,
+    title: title || `${entity} form`,
+    submit: submitUrl,
+    submitLabel: 'Submit',
+    fields: fields.map((f) => ({
+      name: f.name,
+      label: f.label || f.name,
+      type: f.type || 'text',
+      required: !!f.required,
+      options: (f.picklistValues || []).map((p) => (
+        typeof p === 'string' ? { value: p, label: p } : { value: p.value, label: p.label || p.value }
+      )),
+    })),
+  };
 }
 
 /**
  * Build EDS `sf-form` block markup for Document Authoring / sendHTML.
- *
- * Rows:
- *   entity | <SObjectApiName>
- *   title  | <form heading>
- *   submit | <App Builder submit URL>
- *   <Label> | <ApiName> | <htmlType> | required|optional | <picklist csv>
+ * The block contains one cell of JSON; decorate() parses it into a form.
  *
  * @param {{ entity: string, title?: string, submitUrl: string, fields: object[] }} opts
  */
-export function buildFormBlockHtml({
-  entity, title, submitUrl, fields,
-}) {
-  const heading = title || `${entity} form`;
-  const rows = [
-    row('entity', entity),
-    row('title', heading),
-    row('submit', submitUrl),
-    ...fields.map((f) => {
-      const pick = (f.picklistValues || []).map((p) => p.value).join('|');
-      return row(
-        f.label,
-        f.name,
-        f.type,
-        f.required ? 'required' : 'optional',
-        pick,
-      );
-    }),
-  ];
-  return `<div class="sf-form">${rows.join('')}</div>`;
+export function buildFormBlockHtml(opts) {
+  const definition = buildFormDefinition(opts);
+  const json = JSON.stringify(definition, null, 2);
+  return `<div class="sf-form"><div><div><pre><code>${escapeHtml(json)}</code></pre></div></div></div>`;
 }
 
 /**

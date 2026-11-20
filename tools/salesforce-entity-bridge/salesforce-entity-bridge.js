@@ -347,13 +347,13 @@ function setStatus(node, message = '', type = 'info') {
       fields,
       selectionHtml: state.selection,
     };
-    resultPreview.textContent = formSummary({
+    resultPreview.textContent = `${formSummary({
       entity: state.selectedEntity.name,
       fields,
-    });
+    })} — inserts an sf-form block with JSON the page renders as a form.`;
     renderResultActions();
     resultSection.hidden = false;
-    setStatus(status, 'Form ready. Insert it onto the page.', 'success');
+    setStatus(status, 'Form JSON ready. Insert it onto the page.', 'success');
   }
 
   async function refreshSelection() {
