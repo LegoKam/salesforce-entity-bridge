@@ -72,6 +72,7 @@ function setStatus(node, message = '', type = 'info') {
     selectedEntity: null,
     fields: [],
     selected: new Map(), // apiName → { ...field, type, required }
+    showSelectedOnly: false,
     title: '',
     selection: '',
     result: '',
@@ -100,6 +101,11 @@ function setStatus(node, message = '', type = 'info') {
   const selectRequiredBtn = el('button', { type: 'button', class: 'quiet' }, 'Select required');
   const selectAllBtn = el('button', { type: 'button', class: 'quiet' }, 'Select all');
   const clearFieldsBtn = el('button', { type: 'button', class: 'quiet' }, 'Clear');
+  const showSelectedBtn = el('button', {
+    type: 'button',
+    class: 'quiet',
+    title: 'Only list checked fields so you can reorder them',
+  }, 'Show selected');
   const buildBtn = el('button', { type: 'button', class: 'primary', disabled: true }, 'Build form');
   const resultPreview = el('div', { class: 'result-preview' });
   const resultActions = el('div', { class: 'actions' });
@@ -131,20 +137,34 @@ function setStatus(node, message = '', type = 'info') {
       || e.name.toLowerCase().includes(q));
   }
 
+  function visibleFields() {
+    if (!state.showSelectedOnly) return state.fields;
+    return state.fields.filter((f) => state.selected.has(f.name));
+  }
+
   function moveField(name, delta) {
-    const index = state.fields.findIndex((f) => f.name === name);
-    if (index < 0) return;
-    const next = index + delta;
-    if (next < 0 || next >= state.fields.length) return;
+    const order = visibleFields();
+    const viewIndex = order.findIndex((f) => f.name === name);
+    if (viewIndex < 0) return;
+    const target = order[viewIndex + delta];
+    if (!target) return;
+    const from = state.fields.findIndex((f) => f.name === name);
+    const to = state.fields.findIndex((f) => f.name === target.name);
+    if (from < 0 || to < 0) return;
     const copy = [...state.fields];
-    const [item] = copy.splice(index, 1);
-    copy.splice(next, 0, item);
+    const [item] = copy.splice(from, 1);
+    copy.splice(to, 0, item);
     state.fields = copy;
     renderFields();
   }
 
   function renderFields() {
-    fieldList.replaceChildren(...state.fields.map((f, index) => {
+    const visible = visibleFields();
+    showSelectedBtn.classList.toggle('is-active', state.showSelectedOnly);
+    showSelectedBtn.textContent = state.showSelectedOnly ? 'Show all' : 'Show selected';
+    showSelectedBtn.setAttribute('aria-pressed', state.showSelectedOnly ? 'true' : 'false');
+
+    fieldList.replaceChildren(...visible.map((f, index) => {
       const selected = state.selected.get(f.name);
       const typeSelect = el(
         'select',
@@ -177,7 +197,7 @@ function setStatus(node, message = '', type = 'info') {
         class: 'quiet field-move',
         title: 'Move down',
         'aria-label': `Move ${f.label} down`,
-        disabled: index === state.fields.length - 1,
+        disabled: index === visible.length - 1,
         onclick: () => moveField(f.name, 1),
       }, '↓');
       return el(
@@ -250,6 +270,7 @@ function setStatus(node, message = '', type = 'info') {
     state.selectedEntity = entity;
     state.fields = [];
     state.selected = new Map();
+    state.showSelectedOnly = false;
     state.title = `${entity.label} form`;
     titleInput.value = state.title;
     renderEntities();
@@ -418,6 +439,10 @@ function setStatus(node, message = '', type = 'info') {
     state.selected = new Map();
     renderFields();
   });
+  showSelectedBtn.addEventListener('click', () => {
+    state.showSelectedOnly = !state.showSelectedOnly;
+    renderFields();
+  });
 
   mainView.append(
     el(
@@ -460,6 +485,7 @@ function setStatus(node, message = '', type = 'info') {
           selectRequiredBtn,
           selectAllBtn,
           clearFieldsBtn,
+          showSelectedBtn,
         ),
       ),
       el('p', { class: 'hint' }, 'Tick fields to include. Change the HTML type if needed. Use ↑↓ to set form order.'),
