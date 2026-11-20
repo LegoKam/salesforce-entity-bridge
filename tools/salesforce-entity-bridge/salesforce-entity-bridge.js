@@ -61,6 +61,10 @@ function setStatus(node, message = '', type = 'info') {
       tokenUrl: '',
       refreshToken: '',
       scope: 'api chatter_api full id openid refresh_token visualforce web',
+      callbackUrl: '',
+      oauthState: '',
+      apiVersion: 'v59.0',
+      objectName: '',
       appBuilderUrl: '',
     },
     entities: [],
@@ -475,6 +479,29 @@ function setStatus(node, message = '', type = 'info') {
     autocomplete: 'off',
     spellcheck: 'false',
   });
+  const callbackInput = el('input', {
+    type: 'url',
+    autocomplete: 'off',
+    spellcheck: 'false',
+  });
+  const oauthStateInput = el('input', {
+    type: 'text',
+    autocomplete: 'off',
+    spellcheck: 'false',
+    class: 'secret-mask',
+  });
+  const apiVersionInput = el('input', {
+    type: 'text',
+    autocomplete: 'off',
+    spellcheck: 'false',
+    placeholder: 'v59.0',
+  });
+  const objectNameInput = el('input', {
+    type: 'text',
+    autocomplete: 'off',
+    spellcheck: 'false',
+    placeholder: 'salesforce_car_licence_details__c',
+  });
   const appBuilderInput = el('input', {
     type: 'url',
     autocomplete: 'off',
@@ -497,6 +524,11 @@ function setStatus(node, message = '', type = 'info') {
     refreshInput.value = '';
     refreshInput.placeholder = settings.refreshToken ? 'Saved. Leave blank to keep it.' : 'OAuth refresh token';
     scopeInput.value = settings.scope;
+    callbackInput.value = settings.callbackUrl || '';
+    oauthStateInput.value = '';
+    oauthStateInput.placeholder = settings.oauthState ? 'Saved. Leave blank to keep it.' : 'OAuth state';
+    apiVersionInput.value = settings.apiVersion || 'v59.0';
+    objectNameInput.value = settings.objectName || '';
     appBuilderInput.value = settings.appBuilderUrl;
   }
 
@@ -517,6 +549,10 @@ function setStatus(node, message = '', type = 'info') {
       refreshToken: keep(refreshInput.value.trim(), state.settings.refreshToken),
       scope: scopeInput.value.trim()
         || 'api chatter_api full id openid refresh_token visualforce web',
+      callbackUrl: callbackInput.value.trim(),
+      oauthState: keep(oauthStateInput.value.trim(), state.settings.oauthState),
+      apiVersion: apiVersionInput.value.trim() || 'v59.0',
+      objectName: objectNameInput.value.trim(),
       appBuilderUrl: appBuilderInput.value.trim().replace(/\/+$/, ''),
     };
   }
@@ -604,12 +640,16 @@ function setStatus(node, message = '', type = 'info') {
       'form',
       { onsubmit: onSave },
       field('Salesforce instance', instanceInput, el('span', { class: 'hint' }, 'Host only or full URL, e.g. myorg.my.salesforce.com')),
-      field('Client ID', clientIdInput),
-      field('Client secret', clientSecretInput),
+      field('Consumer key (client ID)', clientIdInput),
+      field('Consumer secret', clientSecretInput),
       field('OAuth authorize URL', authorizeInput),
       field('Access / refresh token URL', tokenUrlInput, el('span', { class: 'hint' }, 'https://{instance}/services/oauth2/token')),
       field('Refresh token', refreshInput),
       field('Authorization scope', scopeInput),
+      field('OAuth callback URL', callbackInput),
+      field('OAuth state', oauthStateInput),
+      field('API version', apiVersionInput),
+      field('Default object', objectNameInput, el('span', { class: 'hint' }, 'Preferred sObject when loading entities, e.g. salesforce_car_licence_details__c')),
       field('App Builder base URL', appBuilderInput, el('span', { class: 'hint' }, 'Package URL that exposes /entities, /describe, and /submit')),
       el('div', { class: 'actions' }, saveBtn, testBtn),
       settingsStatus,

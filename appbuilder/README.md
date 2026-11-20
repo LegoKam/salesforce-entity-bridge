@@ -15,7 +15,7 @@ Adobe I/O Runtime web actions that:
 
    ```sh
    cp .env.example .env
-   # edit .env with Connected App values
+   # edit .env with Connected App values (replace XX placeholders)
    npm i
    aio app deploy
    ```
@@ -30,6 +30,20 @@ https://<namespace>.adobeioruntime.net/api/v1/web/<package>/salesforce-entity-br
 https://<namespace>.adobeioruntime.net/api/v1/web/<package>/salesforce-entity-bridge/submit
 ```
 
-## Secrets
+## `.env` keys
 
-Keep Salesforce credentials in Runtime `.env` / workspace secrets **and** in the da.live org `secrets` sheet (for the authoring plugin). Do not put client secret or refresh token into page content or git.
+| Variable | Notes |
+| -------- | ----- |
+| `SALESFORCE_CONSUMER_KEY` | Connected App consumer key |
+| `SALESFORCE_CONSUMER_SECRET` | Connected App consumer secret |
+| `SALESFORCE_REFRESH_TOKEN` | OAuth refresh token |
+| `SALESFORCE_AUTHORIZATION_URL` | Usually `https://login.salesforce.com/services/oauth2/authorize` |
+| `SALESFORCE_TOKEN_URL` | `https://{instance}/services/oauth2/token` |
+| `SALESFORCE_CALLBACK_URL` | Connected App callback (App Builder OAuth helper) |
+| `SALESFORCE_OAUTH_STATE` | OAuth `state` value used when obtaining the refresh token |
+| `SALESFORCE_INSTANCE_URL` | `https://{org}.my.salesforce.com` |
+| `SALESFORCE_API_VERSION` | e.g. `v59.0` |
+| `SALESFORCE_OBJECT_NAME` | Preferred default sObject (shown first in entity list) |
+| `SALESFORCE_OAUTH_SCOPE` | Space-separated scopes |
+
+Keep the same values in the da.live org `secrets` sheet (plugin Settings). Do not commit `.env` or put client secret / refresh token into page content or git.

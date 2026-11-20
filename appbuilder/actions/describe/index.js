@@ -1,5 +1,5 @@
 const { Core } = require('@adobe/aio-sdk');
-const { sfFetch, jsonResponse, handleOptions } = require('../shared/salesforce');
+const { sfFetch, jsonResponse, handleOptions, credentials } = require('../shared/salesforce');
 const { errorResponse } = require('../shared/utils');
 
 /**
@@ -12,14 +12,15 @@ async function main(params) {
     return handleOptions();
   }
 
-  const entity = params.entity || params.name;
+  const { defaultObject } = credentials(params);
+  const entity = params.entity || params.name || defaultObject;
   if (!entity) {
     return errorResponse(400, 'Missing entity name.', logger);
   }
 
   try {
     const safe = encodeURIComponent(String(entity));
-    const data = await sfFetch(params, `/services/data/v59.0/sobjects/${safe}/describe`);
+    const data = await sfFetch(params, `/sobjects/${safe}/describe`);
     logger.info(`Described ${data.name} (${(data.fields || []).length} fields)`);
     return jsonResponse(200, {
       name: data.name,

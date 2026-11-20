@@ -75,20 +75,24 @@ Open **Panels → Extensions → Salesforce Entity Bridge**.
 
 In the plugin, open **Settings** and save:
 
-| Secret key                 | Example |
-| -------------------------- | ------- |
-| `sf.instance-url`          | `https://YOUR_ORG.my.salesforce.com` |
-| `sf.client-id`             | Connected App consumer key |
-| `sf.client-secret`         | Connected App consumer secret |
-| `sf.oauth-authorize-url`   | `https://login.salesforce.com/services/oauth2/authorize` |
-| `sf.token-url`             | `https://YOUR_ORG.my.salesforce.com/services/oauth2/token` |
-| `sf.refresh-token`         | OAuth refresh token |
-| `sf.scope`                 | `api chatter_api full id openid refresh_token visualforce web` |
-| `sf.app-builder-url`       | App Builder package base URL (…`/salesforce-entity-bridge`) |
+| da.live secret key         | App Builder `.env` | Example |
+| -------------------------- | ------------------ | ------- |
+| `sf.instance-url`          | `SALESFORCE_INSTANCE_URL` | `https://YOUR_ORG.my.salesforce.com` |
+| `sf.client-id`             | `SALESFORCE_CONSUMER_KEY` | Connected App consumer key |
+| `sf.client-secret`         | `SALESFORCE_CONSUMER_SECRET` | Connected App consumer secret |
+| `sf.oauth-authorize-url`   | `SALESFORCE_AUTHORIZATION_URL` | `https://login.salesforce.com/services/oauth2/authorize` |
+| `sf.token-url`             | `SALESFORCE_TOKEN_URL` | `https://YOUR_ORG.my.salesforce.com/services/oauth2/token` |
+| `sf.refresh-token`         | `SALESFORCE_REFRESH_TOKEN` | OAuth refresh token |
+| `sf.scope`                 | `SALESFORCE_OAUTH_SCOPE` | `api chatter_api full id openid refresh_token visualforce web` |
+| `sf.callback-url`          | `SALESFORCE_CALLBACK_URL` | App Builder OAuth callback URL |
+| `sf.oauth-state`           | `SALESFORCE_OAUTH_STATE` | OAuth state |
+| `sf.api-version`           | `SALESFORCE_API_VERSION` | `v59.0` |
+| `sf.object-name`           | `SALESFORCE_OBJECT_NAME` | e.g. `salesforce_car_licence_details__c` |
+| `sf.app-builder-url`       | *(plugin only)* | App Builder package base URL (…`/salesforce-entity-bridge`) |
 
 You can also edit the org **secrets** sheet at [da.live/config#/legokam/](https://da.live/config#/legokam/) (`key` / `value` headers).
 
-Mirror the same Salesforce values into `appbuilder/.env` before deploying Runtime. Use **Test connection** after App Builder is deployed.
+Mirror the same Salesforce values into `appbuilder/.env` (see `.env.example`) before deploying Runtime. Use **Test connection** after App Builder is deployed. Replace any `XX` placeholders for secret and refresh token.
 
 **Security:** anyone who can read the org config can read these secrets. Published pages only store the App Builder submit URL, not client secret or refresh token.
 

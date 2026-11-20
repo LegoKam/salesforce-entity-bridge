@@ -20,12 +20,17 @@ export const KEYS = {
   tokenUrl: 'sf.token-url',
   refreshToken: 'sf.refresh-token',
   scope: 'sf.scope',
+  callbackUrl: 'sf.callback-url',
+  oauthState: 'sf.oauth-state',
+  apiVersion: 'sf.api-version',
+  objectName: 'sf.object-name',
   appBuilderUrl: 'sf.app-builder-url',
 };
 
 const DEFAULTS = {
   oauthAuthorizeUrl: 'https://login.salesforce.com/services/oauth2/authorize',
   scope: 'api chatter_api full id openid refresh_token visualforce web',
+  apiVersion: 'v59.0',
 };
 
 const toSheet = (data) => ({

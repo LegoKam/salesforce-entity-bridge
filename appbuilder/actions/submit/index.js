@@ -1,13 +1,13 @@
 const { Core } = require('@adobe/aio-sdk');
-const { sfFetch, jsonResponse, handleOptions } = require('../shared/salesforce');
+const { sfFetch, jsonResponse, handleOptions, credentials } = require('../shared/salesforce');
 const { errorResponse } = require('../shared/utils');
 
 /**
  * Create a Salesforce record from a published sf-form submission.
  * Body: { entity: "Lead", fields: { FirstName, LastName, ... } }
  *
- * Credentials come from Runtime action inputs (app.config.yaml / .env).
- * Client-posted SF_* keys are ignored so a public form cannot override secrets.
+ * Credentials come from Runtime action inputs (.env). Client-posted
+ * SALESFORCE_* keys are ignored so a public form cannot override secrets.
  */
 async function main(params) {
   const logger = Core.Logger('submit', { level: params.LOG_LEVEL || 'info' });
@@ -16,7 +16,8 @@ async function main(params) {
     return handleOptions();
   }
 
-  const entity = params.entity;
+  const { defaultObject } = credentials(params);
+  const entity = params.entity || defaultObject;
   const fields = params.fields || params.data || {};
   if (!entity) {
     return errorResponse(400, 'Missing entity.', logger);
@@ -25,17 +26,16 @@ async function main(params) {
     return errorResponse(400, 'Missing fields object.', logger);
   }
 
-  // Only pass through configured Runtime inputs for auth — not POST body overrides.
-  // Adobe Runtime merges JSON body into params; re-bind from the same SF_* names
-  // that app.config.yaml maps from .env (deploy-time values).
   const authParams = {
     LOG_LEVEL: params.LOG_LEVEL,
-    SF_INSTANCE_URL: params.SF_INSTANCE_URL,
-    SF_CLIENT_ID: params.SF_CLIENT_ID,
-    SF_CLIENT_SECRET: params.SF_CLIENT_SECRET,
-    SF_TOKEN_URL: params.SF_TOKEN_URL,
-    SF_REFRESH_TOKEN: params.SF_REFRESH_TOKEN,
-    SF_SCOPE: params.SF_SCOPE,
+    SALESFORCE_INSTANCE_URL: params.SALESFORCE_INSTANCE_URL,
+    SALESFORCE_CONSUMER_KEY: params.SALESFORCE_CONSUMER_KEY,
+    SALESFORCE_CONSUMER_SECRET: params.SALESFORCE_CONSUMER_SECRET,
+    SALESFORCE_TOKEN_URL: params.SALESFORCE_TOKEN_URL,
+    SALESFORCE_REFRESH_TOKEN: params.SALESFORCE_REFRESH_TOKEN,
+    SALESFORCE_OAUTH_SCOPE: params.SALESFORCE_OAUTH_SCOPE,
+    SALESFORCE_API_VERSION: params.SALESFORCE_API_VERSION,
+    SALESFORCE_OBJECT_NAME: params.SALESFORCE_OBJECT_NAME,
   };
 
   try {
@@ -48,7 +48,7 @@ async function main(params) {
     });
     const created = await sfFetch(
       authParams,
-      `/services/data/v59.0/sobjects/${safe}`,
+      `/sobjects/${safe}`,
       { method: 'POST', body: cleaned },
     );
     logger.info(`Created ${entity} ${created.id}`);

@@ -1,34 +1,63 @@
 /*
  * Shared Salesforce OAuth + REST helpers for App Builder web actions.
- * Prefers Runtime inputs / .env; falls back to values posted by the authoring plugin.
+ * Credentials come from Runtime inputs mapped from .env (SALESFORCE_*).
  */
 
 const fetch = require('node-fetch');
 
-function pick(params, key) {
-  return params?.[key] || params?.[key.replace(/^SF_/, '')] || '';
+function first(...values) {
+  return values.find((v) => v != null && String(v).trim() !== '') || '';
+}
+
+function stripQuotes(value) {
+  return String(value || '').trim().replace(/^["']|["']$/g, '');
 }
 
 function credentials(params) {
   const instanceUrl = String(
-    pick(params, 'SF_INSTANCE_URL') || pick(params, 'instanceUrl') || '',
+    first(params.SALESFORCE_INSTANCE_URL, params.SF_INSTANCE_URL, params.instanceUrl),
   ).replace(/\/+$/, '');
   const normalised = instanceUrl
     ? (/^https?:\/\//i.test(instanceUrl) ? instanceUrl : `https://${instanceUrl}`)
     : '';
+  let apiVersion = first(params.SALESFORCE_API_VERSION, params.SF_API_VERSION, 'v59.0');
+  apiVersion = String(apiVersion).replace(/^\/+|\/+$/g, '');
+  if (apiVersion && !apiVersion.startsWith('v')) apiVersion = `v${apiVersion}`;
+
   return {
     instanceUrl: normalised,
-    clientId: pick(params, 'SF_CLIENT_ID') || pick(params, 'clientId'),
-    clientSecret: pick(params, 'SF_CLIENT_SECRET') || pick(params, 'clientSecret'),
-    tokenUrl: pick(params, 'SF_TOKEN_URL') || pick(params, 'tokenUrl'),
-    refreshToken: pick(params, 'SF_REFRESH_TOKEN') || pick(params, 'refreshToken'),
-    scope: pick(params, 'SF_SCOPE') || pick(params, 'scope'),
+    clientId: first(params.SALESFORCE_CONSUMER_KEY, params.SF_CLIENT_ID, params.clientId),
+    clientSecret: first(
+      params.SALESFORCE_CONSUMER_SECRET,
+      params.SF_CLIENT_SECRET,
+      params.clientSecret,
+    ),
+    tokenUrl: first(params.SALESFORCE_TOKEN_URL, params.SF_TOKEN_URL, params.tokenUrl),
+    refreshToken: first(
+      params.SALESFORCE_REFRESH_TOKEN,
+      params.SF_REFRESH_TOKEN,
+      params.refreshToken,
+    ),
+    scope: stripQuotes(first(
+      params.SALESFORCE_OAUTH_SCOPE,
+      params.SF_SCOPE,
+      params.scope,
+    )),
+    authorizeUrl: first(
+      params.SALESFORCE_AUTHORIZATION_URL,
+      params.SF_OAUTH_AUTHORIZE_URL,
+      params.oauthAuthorizeUrl,
+    ),
+    callbackUrl: first(params.SALESFORCE_CALLBACK_URL, params.callbackUrl),
+    oauthState: first(params.SALESFORCE_OAUTH_STATE, params.oauthState),
+    apiVersion,
+    defaultObject: first(params.SALESFORCE_OBJECT_NAME, params.objectName),
   };
 }
 
 function missingCreds(creds) {
   const needed = ['instanceUrl', 'clientId', 'clientSecret', 'tokenUrl', 'refreshToken'];
-  return needed.filter((k) => !creds[k]);
+  return needed.filter((k) => !creds[k] || creds[k] === 'XX');
 }
 
 async function getAccessToken(params) {
@@ -63,12 +92,21 @@ async function getAccessToken(params) {
   return {
     accessToken: data.access_token,
     instanceUrl: (data.instance_url || creds.instanceUrl).replace(/\/+$/, ''),
+    apiVersion: creds.apiVersion,
+    defaultObject: creds.defaultObject,
   };
+}
+
+function apiPath(params, relativePath) {
+  const { apiVersion } = credentials(params);
+  const path = relativePath.startsWith('/') ? relativePath : `/${relativePath}`;
+  if (path.startsWith('/services/')) return path;
+  return `/services/data/${apiVersion}${path}`;
 }
 
 async function sfFetch(params, path, { method = 'GET', body } = {}) {
   const { accessToken, instanceUrl } = await getAccessToken(params);
-  const url = `${instanceUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  const url = `${instanceUrl}${apiPath(params, path)}`;
   const resp = await fetch(url, {
     method,
     headers: {
@@ -126,6 +164,7 @@ function handleOptions() {
 module.exports = {
   credentials,
   getAccessToken,
+  apiPath,
   sfFetch,
   jsonResponse,
   handleOptions,

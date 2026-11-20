@@ -1,5 +1,5 @@
 const { Core } = require('@adobe/aio-sdk');
-const { sfFetch, jsonResponse, handleOptions } = require('../shared/salesforce');
+const { sfFetch, jsonResponse, handleOptions, credentials } = require('../shared/salesforce');
 const { errorResponse } = require('../shared/utils');
 
 /**
@@ -13,8 +13,9 @@ async function main(params) {
   }
 
   try {
-    const data = await sfFetch(params, '/services/data/v59.0/sobjects');
-    const entities = (data.sobjects || [])
+    const { defaultObject } = credentials(params);
+    const data = await sfFetch(params, '/sobjects');
+    let entities = (data.sobjects || [])
       .filter((s) => s.createable && s.queryable && !s.deprecatedAndHidden)
       .map((s) => ({
         name: s.name,
@@ -22,8 +23,17 @@ async function main(params) {
         createable: s.createable,
         custom: s.custom,
       }));
+
+    // Prefer configured default object at the top of the list when present.
+    if (defaultObject) {
+      const preferred = entities.find((e) => e.name === defaultObject);
+      if (preferred) {
+        entities = [preferred, ...entities.filter((e) => e.name !== defaultObject)];
+      }
+    }
+
     logger.info(`Returning ${entities.length} entities`);
-    return jsonResponse(200, { entities });
+    return jsonResponse(200, { entities, defaultObject: defaultObject || null });
   } catch (error) {
     return errorResponse(error.statusCode || 500, error.message, logger);
   }
