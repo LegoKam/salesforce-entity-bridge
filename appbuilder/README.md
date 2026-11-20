@@ -1,6 +1,14 @@
 # App Builder — Salesforce Entity Bridge
 
-Adobe I/O Runtime web actions that:
+Adobe I/O project **SalesforceEntityBridge** (`374SalmonBooby`) · org `31876` · workspace **Production**.
+
+| | |
+| --- | --- |
+| Runtime | `https://31876-374salmonbooby.adobeioruntime.net` |
+| Static / web | `https://31876-374salmonbooby.adobeio-static.net` |
+| Project file | `374SalmonBooby-31876-Production.json` (local; gitignored) |
+
+## Actions
 
 | Action | Purpose |
 | ------ | ------- |
@@ -9,7 +17,22 @@ Adobe I/O Runtime web actions that:
 | `submit` | Create a Salesforce record (EDS `sf-form` or AEM Forms REST submit) |
 | `oauth-callback` | Exchange authorization `code` for a refresh token |
 
-Submission behaviour mirrors [securgov/demo-open-auth](https://github.com/) `salesforce-submit`:
+After deploy, package URLs look like:
+
+```
+https://31876-374salmonbooby.adobeioruntime.net/api/v1/web/salesforce-entity-bridge/entities
+https://31876-374salmonbooby.adobeioruntime.net/api/v1/web/salesforce-entity-bridge/describe
+https://31876-374salmonbooby.adobeioruntime.net/api/v1/web/salesforce-entity-bridge/submit
+https://31876-374salmonbooby.adobeio-static.net/api/v1/web/salesforce-entity-bridge/oauth-callback
+```
+
+Plugin **Settings → App Builder base URL**:
+
+```
+https://31876-374salmonbooby.adobeioruntime.net/api/v1/web/salesforce-entity-bridge
+```
+
+Submission behaviour mirrors securgov `demo-open-auth` `salesforce-submit`:
 
 - Accepts flat field maps, `{ entity, fields }`, AEM Forms `data` JSON, and multipart `data`
 - Allowlists `salesforce_car_licence_details__c` fields (Name__c, Email_Address__c, …)
@@ -18,25 +41,29 @@ Submission behaviour mirrors [securgov/demo-open-auth](https://github.com/) `sal
 
 ## Setup
 
-1. Install the [Adobe I/O CLI](https://developer.adobe.com/app-builder/docs/getting_started/installation/) and log in to your App Builder project / workspace.
-2. From this folder:
+1. Install the [Adobe I/O CLI](https://developer.adobe.com/app-builder/docs/getting_started/installation/) and log in.
+2. From this folder, select the project (uses `.aio` or the downloaded Console JSON):
+
+   ```sh
+   aio app use 374SalmonBooby-31876-Production.json
+   # or, if .aio is already present:
+   aio app use
+   ```
+
+3. Configure secrets:
 
    ```sh
    cp .env.example .env
-   # edit .env with Connected App values (replace XX placeholders)
+   # edit .env — Connected App values + callback URL for this project
    npm i
    aio app deploy
    ```
 
-3. Copy the deployed package base URL (ending in `/salesforce-entity-bridge`) into the Experience Workspace plugin **Settings → App Builder base URL**.
+4. In the Connected App, set the callback URL to:
 
-Example action URLs after deploy:
+   `https://31876-374salmonbooby.adobeio-static.net/api/v1/web/salesforce-entity-bridge/oauth-callback`
 
-```
-https://<namespace>.adobeioruntime.net/api/v1/web/<package>/salesforce-entity-bridge/entities
-https://<namespace>.adobeioruntime.net/api/v1/web/<package>/salesforce-entity-bridge/describe
-https://<namespace>.adobeioruntime.net/api/v1/web/<package>/salesforce-entity-bridge/submit
-```
+5. Paste the App Builder base URL into the Experience Workspace plugin **Settings**.
 
 ## `.env` keys
 
@@ -47,11 +74,11 @@ https://<namespace>.adobeioruntime.net/api/v1/web/<package>/salesforce-entity-br
 | `SALESFORCE_REFRESH_TOKEN` | OAuth refresh token |
 | `SALESFORCE_AUTHORIZATION_URL` | Usually `https://login.salesforce.com/services/oauth2/authorize` |
 | `SALESFORCE_TOKEN_URL` | `https://{instance}/services/oauth2/token` |
-| `SALESFORCE_CALLBACK_URL` | Connected App callback (App Builder OAuth helper) |
+| `SALESFORCE_CALLBACK_URL` | This project's `oauth-callback` URL |
 | `SALESFORCE_OAUTH_STATE` | OAuth `state` value used when obtaining the refresh token |
 | `SALESFORCE_INSTANCE_URL` | `https://{org}.my.salesforce.com` |
 | `SALESFORCE_API_VERSION` | e.g. `v59.0` |
-| `SALESFORCE_OBJECT_NAME` | Preferred default sObject (shown first in entity list) |
+| `SALESFORCE_OBJECT_NAME` | Preferred default sObject |
 | `SALESFORCE_OAUTH_SCOPE` | Space-separated scopes |
 
-Keep the same values in the da.live org `secrets` sheet (plugin Settings). Do not commit `.env` or put client secret / refresh token into page content or git.
+Do not commit `.env`, `.aio`, or `*-Production.json`. Keep the same Salesforce values in the da.live org `secrets` sheet (plugin Settings).

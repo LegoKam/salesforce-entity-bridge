@@ -12,6 +12,7 @@ appbuilder/.env
 appbuilder/node_modules/
 appbuilder/dist/
 appbuilder/.aio
+appbuilder/374SalmonBooby-31876-Production.json
 appbuilder/*-Production.json
 appbuilder/*-Stage.json
 appbuilder/*-Dev.json
