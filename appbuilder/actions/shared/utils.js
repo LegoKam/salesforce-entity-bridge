@@ -4,11 +4,11 @@
  */
 
 function corsHeaders(extra = {}) {
+  // Do not set Access-Control-* here: Adobe I/O Runtime's API gateway already
+  // adds CORS for web actions. Duplicating them yields invalid values like
+  // `Access-Control-Allow-Origin: *,*` which browsers reject ("Failed to fetch").
   return {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     ...extra,
   };
 }
