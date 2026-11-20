@@ -1,5 +1,5 @@
-const { Core } = require('@adobe/aio-sdk');
 const { sfFetch, credentials, missingConfig } = require('../shared/salesforce');
+const { createLogger } = require('../shared/logger');
 const {
   isOptions,
   jsonResponse,
@@ -11,7 +11,7 @@ const {
  * List createable Salesforce sObjects for the authoring plugin.
  */
 async function main(params) {
-  const logger = Core.Logger('entities', { level: params.LOG_LEVEL || 'info' });
+  const logger = createLogger('entities', params.LOG_LEVEL || 'info');
 
   if (isOptions(params)) return optionsResponse();
   if (methodOf(params) !== 'POST' && methodOf(params) !== 'GET') {

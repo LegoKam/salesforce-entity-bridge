@@ -49,12 +49,13 @@ Plugin page: `http://localhost:3000/tools/salesforce-entity-bridge/salesforce-en
 
 ### 2. Deploy App Builder actions
 
-Adobe I/O project **SalesforceEntityBridge** (`374SalmonBooby`):
+Adobe I/O **App Builder** project **SfEntityBridge** (Production):
 
-- Runtime: `https://31876-374salmonbooby.adobeioruntime.net`
-- Plugin App Builder base URL: `https://31876-374salmonbooby.adobeioruntime.net/api/v1/web/salesforce-entity-bridge`
+- Runtime: `https://31876-sfentitybridge.adobeioruntime.net`
+- Plugin App Builder base URL: `https://31876-sfentitybridge.adobeioruntime.net/api/v1/web/salesforce-entity-bridge`
+- OAuth callback: `https://31876-sfentitybridge.adobeio-static.net/api/v1/web/salesforce-entity-bridge/oauth-callback`
 
-See [`appbuilder/README.md`](appbuilder/README.md). From `appbuilder/`: `aio app use 374SalmonBooby-31876-Production.json`, copy `.env.example` → `.env`, then `aio app deploy`.
+See [`appbuilder/README.md`](appbuilder/README.md). From `appbuilder/`: ensure Runtime `.env` keys are present, then `aio app deploy`.
 
 ### 3. Register the plugin in da.live
 

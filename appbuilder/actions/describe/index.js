@@ -1,5 +1,5 @@
-const { Core } = require('@adobe/aio-sdk');
 const { sfFetch, credentials, missingConfig } = require('../shared/salesforce');
+const { createLogger } = require('../shared/logger');
 const {
   isOptions,
   jsonResponse,
@@ -12,7 +12,7 @@ const {
  * Describe one Salesforce sObject (fields for the form builder).
  */
 async function main(params) {
-  const logger = Core.Logger('describe', { level: params.LOG_LEVEL || 'info' });
+  const logger = createLogger('describe', params.LOG_LEVEL || 'info');
 
   if (isOptions(params)) return optionsResponse();
   if (methodOf(params) !== 'POST' && methodOf(params) !== 'GET') {

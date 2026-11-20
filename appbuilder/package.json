@@ -7,7 +7,6 @@
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
-    "@adobe/aio-sdk": "^5.0.0",
     "node-fetch": "^2.7.0"
   }
 }

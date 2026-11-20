@@ -5,7 +5,7 @@
  */
 
 const fetch = require('node-fetch');
-const { Core } = require('@adobe/aio-sdk');
+const { createLogger } = require('../shared/logger');
 const {
   isOptions,
   jsonResponse,
@@ -48,7 +48,7 @@ async function exchangeAuthorizationCode(params) {
 }
 
 async function main(params) {
-  const logger = Core.Logger('oauth-callback', { level: params.LOG_LEVEL || 'info' });
+  const logger = createLogger('oauth-callback', params.LOG_LEVEL || 'info');
 
   if (isOptions(params)) return optionsResponse();
   if (methodOf(params) !== 'GET') {

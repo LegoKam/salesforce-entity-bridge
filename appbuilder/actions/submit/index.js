@@ -10,8 +10,8 @@
  * Only Salesforce-like API field names are forwarded (allowlist / heuristic).
  */
 
-const { Core } = require('@adobe/aio-sdk');
 const { createRecord, credentials, missingConfig } = require('../shared/salesforce');
+const { createLogger } = require('../shared/logger');
 const {
   isOptions,
   jsonResponse,
@@ -136,7 +136,7 @@ function authParams(params) {
 }
 
 async function main(params) {
-  const logger = Core.Logger('submit', { level: params.LOG_LEVEL || 'info' });
+  const logger = createLogger('submit', params.LOG_LEVEL || 'info');
 
   if (isOptions(params)) return optionsResponse();
   if (methodOf(params) !== 'POST') {
